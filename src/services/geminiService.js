@@ -1,8 +1,11 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+// Google Gen AI SDK (browser-safe usage)
+import { GoogleGenAI } from "@google/genai";
 
-const API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
+// In CRA, env vars exposed to the browser must be prefixed with REACT_APP_
+const API_KEY = process.env.REACT_APP_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
-console.log('🔑 API Key loaded:', API_KEY ? `${API_KEY.substring(0, 10)}...` : 'NOT FOUND');
+// Avoid printing the key value in browser logs
+console.log('🔑 Gemini API key present:', !!API_KEY);
 
 if (!API_KEY) {
   console.warn('⚠️ REACT_APP_GEMINI_API_KEY is not set in environment variables');
@@ -10,14 +13,15 @@ if (!API_KEY) {
 
 let genAI = null;
 try {
-  genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
-  console.log('✅ Gemini AI initialized:', genAI ? 'SUCCESS' : 'FAILED');
+  // Prefer passing apiKey explicitly in browser
+  genAI = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null;
+  console.log('✅ Gemini AI initialized:', !!genAI);
 } catch (error) {
   console.error('❌ Failed to initialize Gemini AI:', error);
 }
 
-// Using gemini-1.5-flash as it's the latest stable model
-const MODEL_NAME = 'gemini-1.5-flash';
+// Use a current stable model
+const MODEL_NAME = 'gemini-2.5-flash';
 
 // Fallback responses when API is not available
 const fallbackResponses = {
@@ -136,8 +140,6 @@ export const geminiService = {
         return fallbackResponses.coaching(studentProfile);
       }
 
-      const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-      
       const prompt = `${systemPrompt}
 
 New student profile:
@@ -154,9 +156,11 @@ Please provide:
 4. First 3 courses to get started with
 5. Estimated timeline and milestones`;
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
+      const result = await genAI.models.generateContent({
+        model: MODEL_NAME,
+        contents: prompt,
+      });
+      return result.text;
     } catch (error) {
       console.error('Error in Gemini API call:', error);
       console.log('Falling back to offline response');
@@ -172,8 +176,6 @@ Please provide:
         return fallbackResponses.coaching(studentData);
       }
 
-      const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-      
       const prompt = `${systemPrompt}
 
 Student Current Status:
@@ -190,9 +192,11 @@ Based on the student's progress and profile, provide:
 5. Estimated time to reach next level
 6. Skill gaps to address`;
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
+      const result = await genAI.models.generateContent({
+        model: MODEL_NAME,
+        contents: prompt,
+      });
+      return result.text;
     } catch (error) {
       console.error('Error generating recommendations:', error);
       console.log('Falling back to offline response');
@@ -208,8 +212,6 @@ Based on the student's progress and profile, provide:
         return `**Study Guidance for ${topic}** 📚\n\nHere's how to approach learning ${topic}:\n\n1. **Start with basics** - Understand core concepts\n2. **Practice regularly** - Hands-on experience is key\n3. **Build projects** - Apply what you learn\n4. **Join communities** - Learn from others\n5. **Stay consistent** - Regular practice matters\n\nKeep going! You're doing great! 🚀`;
       }
 
-      const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-      
       const prompt = `${systemPrompt}
 
 Student is struggling with: ${topic}
@@ -226,9 +228,11 @@ Provide:
 5. Resources and projects to practice
 6. Tips for mastering this topic`;
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
+      const result = await genAI.models.generateContent({
+        model: MODEL_NAME,
+        contents: prompt,
+      });
+      return result.text;
     } catch (error) {
       console.error('Error providing study guidance:', error);
       console.log('Falling back to offline response');
@@ -244,8 +248,6 @@ Provide:
         return fallbackResponses.assessment(skillArea);
       }
 
-      const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-      
       const prompt = `${systemPrompt}
 
 Assess the student's skill level in ${skillArea}:
@@ -259,9 +261,11 @@ Provide:
 4. Specific recommendations
 5. Suggested learning resources`;
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
+      const result = await genAI.models.generateContent({
+        model: MODEL_NAME,
+        contents: prompt,
+      });
+      return result.text;
     } catch (error) {
       console.error('Error assessing skill level:', error);
       console.log('Falling back to offline response');
@@ -283,24 +287,21 @@ Provide:
       }
 
       console.log('✅ Using real Gemini API');
-      const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-      
-      const formattedHistory = conversationHistory.map(msg => ({
-        role: msg.sender === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.text }]
-      }));
 
-      const chat = model.startChat({
-        history: formattedHistory,
-        generationConfig: {
-          maxOutputTokens: 1024,
-          temperature: 0.7,
-        },
+      // Build contents array from history + current message for a chat-like response
+      const contents = [
+        ...conversationHistory.map(msg => ({
+          role: msg.sender === 'user' ? 'user' : 'model',
+          parts: [{ text: msg.text }]
+        })),
+        { role: 'user', parts: [{ text: message }] }
+      ];
+
+      const result = await genAI.models.generateContent({
+        model: MODEL_NAME,
+        contents,
       });
-
-      const result = await chat.sendMessage(message);
-      const response = await result.response;
-      return response.text();
+      return result.text;
     } catch (error) {
       console.error('Error in chat:', error);
       console.log('Falling back to offline response');
