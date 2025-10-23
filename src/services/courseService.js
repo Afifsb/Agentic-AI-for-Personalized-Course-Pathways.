@@ -1,48 +1,24 @@
 /**
- * IBM Cloud Service Integration
- * Integrates with IBM Cloud Lite services for enhanced functionality
- * - IBM Granite for advanced NLP tasks
- * - IBM Cloud Storage for course recommendations
- * - IBM Analytics for tracking and insights
+ * Course Recommendation Service
+ * Provides course recommendations and learning analytics
  */
 
-const IBM_API_URL = process.env.REACT_APP_IBM_API_URL || 'https://api.us-south.assistant.watson.cloud.ibm.com';
-
-export const ibmCloudService = {
+export const courseService = {
   /**
-   * Initialize IBM Granite model for enhanced course recommendations
+   * Get course recommendations
    */
-  async initializeGraniteModel() {
+  async getCourseRecommendations(studentProfile, courses) {
     try {
-      return {
-        status: 'initialized',
-        model: 'granite-13b-chat-v2',
-        capabilities: ['course-analysis', 'skill-assessment', 'learning-path-generation']
-      };
-    } catch (error) {
-      console.error('Error initializing Granite model:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * Get course recommendations using IBM Granite
-   */
-  async getGraniteRecommendations(studentProfile, courses) {
-    try {
-      // In a real scenario, this would call IBM Cloud API
-      // For now, we'll use local processing with simulated IBM capabilities
-      
       const recommendations = this.processRecommendationsLocally(studentProfile, courses);
       return recommendations;
     } catch (error) {
-      console.error('Error getting Granite recommendations:', error);
+      console.error('Error getting recommendations:', error);
       throw error;
     }
   },
 
   /**
-   * Local processing of recommendations (simulating IBM Granite)
+   * Local processing of recommendations
    */
   processRecommendationsLocally(studentProfile, allCourses) {
     const courseDatabase = this.getCourseDatabase();
@@ -371,7 +347,7 @@ export const ibmCloudService = {
         rating: 4.7,
         students: 400000,
         tags: ['python', 'data science', 'pandas'],
-        instructor: 'IBM',
+        instructor: 'Tech Institute',
         description: 'Learn Python for data analysis'
       },
       {
@@ -436,7 +412,6 @@ export const ibmCloudService = {
    */
   async trackProgress(studentId, progressData) {
     try {
-      // In production, this would store to IBM Cloud Database
       return {
         studentId,
         timestamp: new Date().toISOString(),
@@ -469,4 +444,4 @@ export const ibmCloudService = {
   }
 };
 
-export default ibmCloudService;
+export default courseService;

@@ -8,7 +8,15 @@ import AIChat from './components/AIChat';
 import './App.css';
 
 function App() {
-  const { uiState, student, reset } = useLearnMateStore();
+  const { uiState, student, reset, setCurrentStep } = useLearnMateStore();
+
+  const handleBack = () => {
+    const steps = ['welcome', 'student-info', 'assessment', 'learning-path', 'chat'];
+    const currentIndex = steps.indexOf(uiState.currentStep);
+    if (currentIndex > 0) {
+      setCurrentStep(steps[currentIndex - 1]);
+    }
+  };
 
   const renderStep = () => {
     switch (uiState.currentStep) {
@@ -34,14 +42,21 @@ function App() {
           <div className="brand-icon">🎓</div>
           <span>LearnMate</span>
         </div>
-        {student.name && (
-          <div className="nav-user">
-            <span className="user-name">{student.name}</span>
-            <button onClick={reset} className="btn-reset">
-              Reset
+        <div className="nav-actions">
+          {uiState.currentStep !== 'welcome' && (
+            <button onClick={handleBack} className="btn-back">
+              ← Back
             </button>
-          </div>
-        )}
+          )}
+          {student.name && (
+            <div className="nav-user">
+              <span className="user-name">{student.name}</span>
+              <button onClick={reset} className="btn-reset">
+                Reset
+              </button>
+            </div>
+          )}
+        </div>
       </nav>
 
       <main className="app-main">

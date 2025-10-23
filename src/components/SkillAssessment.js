@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLearnMateStore } from '../store/learnmateStore';
 import { geminiService } from '../services/geminiService';
-import { ibmCloudService } from '../services/ibmCloudService';
+import { courseService } from '../services/courseService';
 import './SkillAssessment.css';
 
 export const SkillAssessment = () => {
@@ -83,9 +83,9 @@ export const SkillAssessment = () => {
         JSON.stringify(answers)
       );
 
-      // Generate course recommendations using IBM Cloud
-      const courseDatabase = ibmCloudService.getCourseDatabase();
-      const recommendedCourses = ibmCloudService.processRecommendationsLocally(
+      // Generate course recommendations
+      const courseDatabase = courseService.getCourseDatabase();
+      const recommendedCourses = courseService.processRecommendationsLocally(
         student,
         courseDatabase
       );

@@ -31,11 +31,6 @@ export const WelcomeScreen = () => {
             Frontend Development, Cybersecurity, UI/UX Design, or Data Science, we'll guide
             you every step of the way.
           </p>
-          {!process.env.REACT_APP_GEMINI_API_KEY && (
-            <div className="api-notice">
-              ℹ️ Running in demo mode. For full AI features, add a valid Gemini API key to .env file.
-            </div>
-          )}
         </div>
 
         <div className="features">

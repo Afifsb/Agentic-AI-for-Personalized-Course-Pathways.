@@ -142,10 +142,6 @@ export const config = {
       temperature: 0.7,
       topP: 1,
       topK: 40
-    },
-    ibm: {
-      model: 'granite-13b-chat-v2',
-      timeout: 30000
     }
   },
 

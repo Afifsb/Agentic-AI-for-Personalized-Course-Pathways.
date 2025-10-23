@@ -2,19 +2,22 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 
+console.log('🔑 API Key loaded:', API_KEY ? `${API_KEY.substring(0, 10)}...` : 'NOT FOUND');
+
 if (!API_KEY) {
-  console.warn('REACT_APP_GEMINI_API_KEY is not set in environment variables');
+  console.warn('⚠️ REACT_APP_GEMINI_API_KEY is not set in environment variables');
 }
 
 let genAI = null;
 try {
   genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
+  console.log('✅ Gemini AI initialized:', genAI ? 'SUCCESS' : 'FAILED');
 } catch (error) {
-  console.warn('Failed to initialize Gemini AI:', error);
+  console.error('❌ Failed to initialize Gemini AI:', error);
 }
 
-// Using gemini-pro as it's the most widely available model
-const MODEL_NAME = 'gemini-pro';
+// Using gemini-1.5-flash as it's the latest stable model
+const MODEL_NAME = 'gemini-1.5-flash';
 
 // Fallback responses when API is not available
 const fallbackResponses = {
@@ -268,12 +271,18 @@ Provide:
 
   async chat(message, conversationHistory) {
     try {
+      console.log('💬 Chat called with message:', message);
+      console.log('📜 Conversation history length:', conversationHistory.length);
+      console.log('🔍 API_KEY exists:', !!API_KEY);
+      console.log('🔍 genAI exists:', !!genAI);
+      
       // Check if API is available
       if (!genAI || !API_KEY) {
-        console.log('Using fallback response - Gemini API not available');
+        console.warn('⚠️ Using fallback response - Gemini API not available');
         return fallbackResponses.chat(message);
       }
 
+      console.log('✅ Using real Gemini API');
       const model = genAI.getGenerativeModel({ model: MODEL_NAME });
       
       const formattedHistory = conversationHistory.map(msg => ({

@@ -1,7 +1,7 @@
 {
   "name": "learnmate-agentic-ai",
   "version": "1.0.0",
-  "description": "LearnMate - Agentic AI for Personalized Course Pathways",
+  "description": "LearnMate - AI-Powered Personalized Learning Platform",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",
